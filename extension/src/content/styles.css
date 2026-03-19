@@ -1,0 +1,174 @@
+/*
+ * CONTENT SCRIPT STYLES
+ * =====================
+ * These styles are injected into the WhatsApp Web page alongside our
+ * content script. They only affect elements we create — our class names
+ * are prefixed with "crm-" to avoid clashing with WhatsApp's own styles.
+ *
+ * WHY NOT USE SHADOW DOM?
+ * -----------------------
+ * Shadow DOM would fully isolate our styles from WhatsApp's. We're skipping
+ * it for the MVP to keep things simple — prefix-based namespacing is enough
+ * for now. The post-MVP roadmap includes migrating to Shadow DOM.
+ *
+ * POSITIONING STRATEGY:
+ * ---------------------
+ * The panel is positioned at the bottom of the #main chat panel using
+ * sticky positioning. This keeps it visible without covering the messages.
+ */
+
+/* ─── Panel container ─────────────────────────────────── */
+
+#whatsapp-crm-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border-top: 2px solid #25D366; /* WhatsApp green — ties visually to the app */
+  position: sticky;
+  bottom: 0;
+  z-index: 999; /* sit above WhatsApp's own sticky elements */
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+}
+
+/* ─── Header row ──────────────────────────────────────── */
+
+.crm-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crm-panel__title {
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  background: #25D366;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1.4;
+}
+
+.crm-panel__contact {
+  color: #54656f; /* WhatsApp's secondary text colour */
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Action buttons row ──────────────────────────────── */
+
+.crm-panel__actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Base button styles shared by all variants */
+.crm-btn {
+  flex: 1;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.crm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary = filled green — main action (Save customer) */
+.crm-btn--primary {
+  background: #25D366;
+  color: #ffffff;
+}
+
+.crm-btn--primary:hover:not(:disabled) {
+  background: #1ebe5a;
+}
+
+/* Secondary = outlined — secondary action (Create order) */
+.crm-btn--secondary {
+  background: #ffffff;
+  color: #25D366;
+  border: 1.5px solid #25D366;
+}
+
+.crm-btn--secondary:hover:not(:disabled) {
+  background: #f0faf4;
+}
+
+/* Active state: secondary button after customer is saved */
+.crm-btn--secondary.crm-btn--active {
+  background: #e8f8ef;
+  font-weight: 600;
+}
+
+/* ─── Feedback message ────────────────────────────────── */
+
+.crm-panel__feedback {
+  font-size: 12px;
+  min-height: 16px; /* reserve space to avoid layout shifts */
+  padding: 0 2px;
+}
+
+.crm-panel__feedback--loading {
+  color: #54656f;
+}
+
+.crm-panel__feedback--success {
+  color: #1ebe5a;
+  font-weight: 500;
+}
+
+.crm-panel__feedback--error {
+  color: #e53e3e;
+}
+
+/* ─── Order form ──────────────────────────────────────── */
+
+.crm-order-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid #e9edef; /* WhatsApp's divider colour */
+}
+
+.crm-input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1.5px solid #d1d7db;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #f0f2f5; /* WhatsApp's input background */
+  color: #111b21;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.crm-input:focus {
+  border-color: #25D366;
+  background: #ffffff;
+}
+
+.crm-input::placeholder {
+  color: #aebac1;
+}
+
+.crm-input--textarea {
+  resize: none;
+  line-height: 1.4;
+}

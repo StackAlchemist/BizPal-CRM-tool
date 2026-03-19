@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!--
+    POPUP WINDOW SIZE:
+    Chrome extension popups don't have a default size — we set it explicitly
+    via CSS on the body. The popup closes automatically when the user clicks
+    anywhere outside it.
+  -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 300px;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 13px;
+      color: #111b21;
+      background: #fff;
+    }
+
+    /* ─── Header bar ─── */
+    .header {
+      background: #25D366;
+      color: #fff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header__logo {
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .header__sub {
+      font-size: 11px;
+      opacity: 0.85;
+    }
+
+    /* ─── Main content area ─── */
+    .content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ─── Status badge ─── */
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #54656f;
+    }
+    .status__dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #aebac1; /* grey = not logged in */
+      flex-shrink: 0;
+    }
+    .status__dot--online { background: #25D366; }
+
+    /* ─── User info card ─── */
+    .user-card {
+      background: #f0f2f5;
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: none; /* hidden until logged in */
+    }
+    .user-card__name {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .user-card__email {
+      font-size: 11px;
+      color: #54656f;
+      margin-top: 2px;
+    }
+
+    /* ─── Login form ─── */
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .login-form input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1.5px solid #d1d7db;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+    }
+    .login-form input:focus { border-color: #25D366; }
+
+    /* ─── Buttons ─── */
+    .btn {
+      width: 100%;
+      padding: 9px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn--primary { background: #25D366; color: #fff; }
+    .btn--primary:hover { background: #1ebe5a; }
+    .btn--outline { background: #fff; color: #e53e3e; border: 1.5px solid #e53e3e; }
+    .btn--outline:hover { background: #fff5f5; }
+
+    /* ─── Feedback ─── */
+    .feedback {
+      font-size: 12px;
+      min-height: 16px;
+      text-align: center;
+    }
+    .feedback--error { color: #e53e3e; }
+    .feedback--success { color: #1ebe5a; }
+
+    /* ─── Footer link ─── */
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #54656f;
+      padding: 0 16px 14px;
+    }
+    .footer a { color: #25D366; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="header__logo">WhatsApp CRM</div>
+      <div class="header__sub">by your business</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Connection status indicator -->
+    <div class="status">
+      <div class="status__dot" id="status-dot"></div>
+      <span id="status-text">Checking status...</span>
+    </div>
+
+    <!--
+      USER CARD (shown when logged in):
+      Displays the logged-in user's business name and email.
+    -->
+    <div class="user-card" id="user-card">
+      <div class="user-card__name" id="user-business"></div>
+      <div class="user-card__email" id="user-email"></div>
+    </div>
+
+    <!--
+      LOGIN FORM (shown when not logged in):
+      The user enters their credentials here. On success the JWT is stored
+      in chrome.storage.local via the background service worker.
+    -->
+    <form class="login-form" id="login-form" onsubmit="return false">
+      <input type="email" id="input-email" placeholder="Email" autocomplete="email" required />
+      <input type="password" id="input-password" placeholder="Password" required />
+      <button class="btn btn--primary" id="btn-login">Sign in</button>
+    </form>
+
+    <!-- Logout button (shown when logged in) -->
+    <button class="btn btn--outline" id="btn-logout" style="display:none">Sign out</button>
+
+    <!-- Feedback message area -->
+    <div class="feedback" id="feedback"></div>
+
+  </div>
+
+  <!-- Link to open the full dashboard -->
+  <div class="footer">
+    <a href="http://localhost:3000" target="_blank" id="dashboard-link">Open dashboard →</a>
+  </div>
+
+  <!--
+    popup.js is loaded as a module so it can use top-level await.
+    It must be a separate file — inline scripts are blocked by the extension's
+    Content Security Policy (CSP).
+  -->
+  <script src="popup.js"></script>
+</body>
+</html>

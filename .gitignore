@@ -1,0 +1,11 @@
+# Node modules
+node_modules/
+# Environment variable files
+.env*
+*.env
+env/
+Envs/
+ENVS/
+environment/
+environments/
+.Environment

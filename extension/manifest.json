@@ -1,0 +1,90 @@
+{
+  "manifest_version": 3,
+
+  "name": "WhatsApp CRM Assistant",
+  "version": "1.0.0",
+  "description": "Save customers and create orders directly from WhatsApp Web.",
+
+  /*
+   * PERMISSIONS EXPLAINED:
+   *
+   * "storage"  → lets us use chrome.storage.local to save the user's JWT token
+   *              and other settings between sessions. We use this instead of
+   *              localStorage because content scripts can't reliably access the
+   *              host page's localStorage.
+   *
+   * "activeTab" → allows the extension to interact with the currently open tab.
+   *               Only needed for popup.js to check if we're on WhatsApp Web.
+   */
+  "permissions": ["storage", "activeTab"],
+
+  /*
+   * HOST PERMISSIONS:
+   * These are the URLs our content script is allowed to run on and that our
+   * fetch() calls (to the backend API) are allowed to reach.
+   *
+   * "https://web.whatsapp.com/*" → inject our UI into WhatsApp Web
+   * "http://localhost:5000/*"    → talk to our local backend during development
+   *
+   * Before going to production, replace localhost with your deployed API URL.
+   */
+  "host_permissions": [
+    "https://web.whatsapp.com/*",
+    "http://localhost:5000/*"
+  ],
+
+  /*
+   * CONTENT SCRIPTS:
+   * These JS files are injected directly into the WhatsApp Web page.
+   * They run in an isolated world (they can access the DOM but not WhatsApp's
+   * own JavaScript variables). They load automatically when the user opens
+   * or navigates to web.whatsapp.com.
+   *
+   * "run_at": "document_idle" → wait until the page's DOM is fully loaded
+   *  before injecting. This is important because WhatsApp Web is a React SPA
+   *  and its DOM elements aren't immediately available on page load.
+   */
+  "content_scripts": [
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["src/content/index.js"],
+      "css": ["src/content/styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  /*
+   * BACKGROUND SERVICE WORKER:
+   * Runs in the background independently of any tab. We use it to:
+   *  - Handle messages from the content script (e.g. "save this customer")
+   *  - Make authenticated API calls to our backend
+   *  - Manage the stored JWT token
+   *
+   * In Manifest v3, background pages were replaced with service workers.
+   * Service workers are ephemeral — they spin up when needed and shut down
+   * when idle. Don't store state in variables here; use chrome.storage instead.
+   */
+  "background": {
+    "service_worker": "src/background/index.js"
+  },
+
+  /*
+   * ACTION (POPUP):
+   * The small UI that appears when the user clicks the extension icon in the
+   * Chrome toolbar. We use it for login/logout and quick status info.
+   */
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
