@@ -1,3 +1,4 @@
+console.log("[CRM] SCRIPT LOADED");
 /*
  * BACKGROUND SERVICE WORKER
  * =========================
